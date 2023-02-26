@@ -1,34 +1,64 @@
-// 1) def imp ---------------------------------
+const os = require('os');
+const fs = require('fs');
 
-// ES Modules:
-// import sum from './math';
-// =
-// CommonJS Modules:
-// const sum = require('./math');
+// console.log('os.platform() :>> ', os.platform());
+// вивести інфо про ЦП
+// console.log('os.cpus() :>> ', os.cpus());
 
-// Використання:
-// console.log('sum(3,4) :>> ', sum(3, 4));
+const fileText = fs.readFileSync('./math.js', { encoding: 'utf-8' });
+// console.log('fileText :>> ', fileText);
 
-// 2) named imp --------------------------------
+// error-first contract in node.js native modules (Callback API)
+fs.readFile('./math.js', { encoding: 'utf-8' }, (err, data) => {
+  if (err) {
+    // console.log('err :>> ', err);
+  } else {
+    // console.log('data :>> ', data);
+  }
+});
 
-// 2.а) - збираємо в Math весь експортований об'єкт -
-// ES Modules:
-// import * as Math from './math';
-// CommonJS Modules:
-// const Math = require('./math');
+// "прочитати" директорію і вивести в консоль результат
+fs.readdir('.', (err, data) => {
+  if (err) {
+    console.log('err', err);
+  } else {
+    data
+      // відфільтровуємо тільки js-файли
+      .filter(f => /^.*\.js$/.test(f))
+      // кожен файл читаємо і виводимо в консоль
+      .forEach(f =>
+        fs.readFile(f, { encoding: 'utf-8' }, (err, data) => {
+          if (err) {
+            console.log('err :>> ', err);
+          } else {
+            // console.log('data :>> ', data);
+          }
+        })
+      );
+  }
+});
 
-// Використання:
-// console.log('Math.sum(1,2) :>> ', Math.sum(1, 2));
-// console.log('Math.mult(1,4) :>> ', Math.mult(1, 4));
+// Переписати в синхронному вигляді
 
-// або
+try {
+  const files = fs.readdirSync('.');
+  // console.log('Files in directory:');
+  files
+    .filter(f => /^.*\.js$/.test(f))
+    .forEach(f => {
+      try {
+        const data = fs.readFileSync(f, { encoding: 'utf-8' });
+        // console.log('Data from file:', f);
+        // console.log(data);
+      } catch (err) {
+        // console.log('Error reading file:', f, err);
+      }
+    });
+} catch (err) {
+  console.log('Error reading directory:', err);
+}
+//
+console.log('__filename :>> ', __filename);
+console.log('__dirname :>> ', __dirname);
 
-// 2.б) - одразу деструктуризуємо -
-// ES Modules:
-// import { sum } from './math';
-// CommonJS Modules:
-// const { sum, mult } = require('./math');
-
-// Використання:
-// console.log('sum(5,6) :>> ', sum(5, 6));
-// console.log('mult(10,5) :>> ', mult(10, 5));
+console.log('process :>> ', process.env);
